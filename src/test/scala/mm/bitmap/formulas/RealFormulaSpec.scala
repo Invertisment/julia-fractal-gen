@@ -1,4 +1,5 @@
-import mm.bitmap.formulas.RealFormula
+package mm.bitmap.formulas
+
 import org.scalatest._
 
 /**
