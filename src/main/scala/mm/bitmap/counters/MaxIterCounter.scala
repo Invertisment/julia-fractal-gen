@@ -11,13 +11,13 @@ import scala.annotation.tailrec
 class MaxIterCounter(formula: Formula) {
 
   def getMax(int: Int): Int = {
-    getMax(int, 1)
+    getMax(int, 0)
   }
 
   @tailrec
   final def getMax(int: Int, depth: Int): Int = {
     val value = formula.countNext(int)
-    if (int < value) getMax(value, depth) else depth // operator "<" is used because of infinite loop possibility because Formula may return the same value
+    if (int < value) getMax(value, depth + 1) else depth // operator "<" is used because of infinite loop possibility because Formula may return the same value
   }
 
 }

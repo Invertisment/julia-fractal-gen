@@ -16,7 +16,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
       override def countNext(z: Int): Int = smallVal
     })
     val output = counter.getMax(100)
-    output shouldBe smallVal
+    output shouldBe 1
   }
 
   it should "return max value from big Formula value" in {
@@ -25,7 +25,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
     })
     val bigVal = 1001
     val output = counter.getMax(bigVal)
-    output shouldBe bigVal
+    output shouldBe 0
   }
 
   it should "count custom value from formula" in {
@@ -51,6 +51,6 @@ class MaxCounterSpec extends FlatSpec with Matchers {
       }
     })
     val output = counter.getMax(limit)
-    output shouldBe limit
+    output shouldBe 0
   }
 }
