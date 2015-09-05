@@ -15,7 +15,7 @@ class MaxIterCounter(formula: Formula) {
   }
 
   @tailrec
-  final def getMax(int: Int, depth: Int): Int = {
+  private final def getMax(int: Int, depth: Int): Int = {
     val value = formula.countNext(int)
     if (int < value) getMax(value, depth + 1) else depth // operator "<" is used because of infinite loop possibility because Formula may return the same value
   }
