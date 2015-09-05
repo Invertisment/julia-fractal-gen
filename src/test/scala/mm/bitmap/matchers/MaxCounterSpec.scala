@@ -1,7 +1,7 @@
 package mm.bitmap.matchers
 
 import mm.bitmap.formulas.Formula
-import mm.bitmap.counters.MaxCounter
+import mm.bitmap.counters.MaxIterCounter
 import org.scalatest._
 
 /**
@@ -12,7 +12,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
 
   "MaxCounter" should "return max value from small Formula value" in {
     val smallVal = 152
-    val counter = new MaxCounter(new Formula {
+    val counter = new MaxIterCounter(new Formula {
       override def countNext(z: Int): Int = smallVal
     })
     val output = counter.getMax(100)
@@ -20,7 +20,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
   }
 
   it should "return max value from big Formula value" in {
-    val counter = new MaxCounter(new Formula {
+    val counter = new MaxIterCounter(new Formula {
       override def countNext(z: Int): Int = 152
     })
     val bigVal = 1001
@@ -30,7 +30,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
 
   it should "count custom value from formula" in {
     val limit = 3
-    val counter = new MaxCounter(new Formula {
+    val counter = new MaxIterCounter(new Formula {
       override def countNext(z: Int): Int = {
         if (z == limit) limit else z + 1
       }
@@ -41,7 +41,7 @@ class MaxCounterSpec extends FlatSpec with Matchers {
 
   it should "stop counting on same value" in {
     val limit = 3
-    val counter = new MaxCounter(new Formula {
+    val counter = new MaxIterCounter(new Formula {
       var isExecuted = false
 
       override def countNext(z: Int): Int = {
