@@ -8,7 +8,7 @@ import scala.annotation.tailrec
  * @author Martynas Maciulevičius.
  * @version 1.0 2015-09-05
  */
-class MaxIterCounter(formula: Formula) {
+class MaxIterCounter(formula: Formula) extends Counter {
 
   def getMax(int: Int): Int = {
     getMax(int, 0)
