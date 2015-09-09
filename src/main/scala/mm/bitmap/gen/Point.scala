@@ -7,8 +7,12 @@ package mm.bitmap.gen
 case class Point(x: Int, y: Int) {
   def meets(point: Point): Boolean = point.x == x || point.y == y
 
-  def maxCoord(point: Point): Point = Point(Math.max(x, point.x), Math.max(y, point.y))
+  def maxCoord(point: Point): Point = Point(
+    Math.max(x, point.x),
+    Math.max(y, point.y))
 
-  def minCoord(point: Point): Point = Point(Math.min(x, point.x), Math.min(y, point.y))
+  def minCoord(point: Point): Point = Point(
+    Math.min(x, point.x),
+    Math.min(y, point.y))
 
 }
