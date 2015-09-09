@@ -15,4 +15,6 @@ case class Point(x: Int, y: Int) {
     Math.min(x, point.x),
     Math.min(y, point.y))
 
+  def accumulate(accX: Int, accY: Int): Point = new Point(x + accX, y + accY)
+
 }

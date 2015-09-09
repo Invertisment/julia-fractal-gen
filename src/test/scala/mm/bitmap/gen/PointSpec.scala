@@ -44,4 +44,9 @@ class PointSpec extends FlatSpec with Matchers {
     pointA.minCoord(pointB) shouldEqual Point(0, 1)
   }
 
+  "Point accumulation" should "produce correct new Point" in {
+    val pointA = Point(9, 1)
+    pointA.accumulate(1, 2) shouldEqual Point(10, 3)
+  }
+
 }
