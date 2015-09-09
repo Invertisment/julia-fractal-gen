@@ -31,4 +31,17 @@ class PointSpec extends FlatSpec with Matchers {
     val pointB = Point(0, 1)
     pointA.meets(pointB) shouldEqual true
   }
+
+  "Point.maxCoord" should "give max coordinates" in {
+    val pointA = Point(9, 1)
+    val pointB = Point(0, 2)
+    pointA.maxCoord(pointB) shouldEqual Point(9, 2)
+  }
+
+  "Point.minCoord" should "give max coordinates" in {
+    val pointA = Point(9, 1)
+    val pointB = Point(0, 2)
+    pointA.minCoord(pointB) shouldEqual Point(0, 1)
+  }
+
 }
