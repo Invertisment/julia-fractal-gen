@@ -4,7 +4,7 @@ package mm.bitmap.gen
  * @author Martynas Maciulevičius.
  * @version 1.0 2015-09-09
  */
-case class Point(x: Int, y: Int) {
+case class Point(x: Double, y: Double) {
   def meets(point: Point): Boolean = point.x == x || point.y == y
 
   def maxCoord(point: Point): Point = Point(
@@ -15,6 +15,6 @@ case class Point(x: Int, y: Int) {
     Math.min(x, point.x),
     Math.min(y, point.y))
 
-  def accumulate(accX: Int, accY: Int): Point = new Point(x + accX, y + accY)
+  def accumulate(accX: Double, accY: Double): Point = Point(x + accX, y + accY)
 
 }

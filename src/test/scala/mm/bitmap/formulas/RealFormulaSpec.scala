@@ -1,5 +1,6 @@
 package mm.bitmap.formulas
 
+import org.apache.commons.math3.complex.Complex
 import org.scalatest._
 
 /**
@@ -8,16 +9,16 @@ import org.scalatest._
  */
 class RealFormulaSpec extends FlatSpec with Matchers {
   "Formula" should "return c value if n is zero" in {
-    val initValue = 152
+    val initValue = new Complex(152)
     val formula = new RealFormula(initValue)
-    val output = formula.countNext(0)
+    val output = formula.countNext(new Complex(0))
     output shouldBe initValue
   }
 
   it should "count right value" in {
-    val initValue = 1
+    val initValue = new Complex(1)
     val formula = new RealFormula(initValue)
-    val output = formula.countNext(2)
+    val output = formula.countNext(new Complex(2))
     output shouldBe 5
   }
 
