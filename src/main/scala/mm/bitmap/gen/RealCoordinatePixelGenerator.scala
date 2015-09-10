@@ -13,7 +13,8 @@ class RealCoordinatePixelGenerator(pixelGenerator: PixelGenerator) extends Coord
     else {
       //      val minPoint = boundaryPoints._1.minCoord(boundaryPoints._2)
       val values: NumericRange[Double] = 1.0 until 10 by 1
-      Left(pixelGenerator.generate(imageWidth, imageHeight, values))
+      //      Left(pixelGenerator.generate(imageWidth, imageHeight, values))
+      Left(Array())
     }
   }
 }
