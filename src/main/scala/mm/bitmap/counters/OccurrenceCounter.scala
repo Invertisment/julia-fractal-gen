@@ -17,7 +17,7 @@ class OccurrenceCounter(formula: Formula, overflowAfter: Int = 0xff) extends Cou
   @tailrec
   private def getMax(seed: Complex, count: Int, iterCount: Int): Int = {
     val value = formula.countNext(seed)
-    val newCount = if (seed.abs < value.abs) count + 1 else count
+    val newCount = if (seed.abs <= value.abs) count + 1 else count
     val nextIterCount = iterCount + 1
     if (nextIterCount < overflowAfter) getMax(value, newCount, nextIterCount) else newCount
   }

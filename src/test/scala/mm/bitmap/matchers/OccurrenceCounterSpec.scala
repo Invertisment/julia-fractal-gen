@@ -11,30 +11,7 @@ import org.scalatest._
  */
 class OccurrenceCounterSpec extends FlatSpec with Matchers {
 
-  "OccurrenceCounter" should "return zero if formula stays constant" in {
-    val smallVal = new Complex(152)
-    val counter = new OccurrenceCounter(new Formula {
-      override def countNext(z: Complex): Complex = smallVal
-    })
-    val output = counter.getMax(new Complex(100))
-    output shouldBe 0
-  }
-
-  it should "return max value from big Formula value" in {
-    val counter = new OccurrenceCounter(new Formula {
-      val range = 1 until 5 iterator
-
-      override def countNext(z: Complex): Complex = {
-        val item = if (range.hasNext) range.next() else 0
-        new Complex(item)
-      }
-    })
-    val bigVal = 0
-    val output = counter.getMax(new Complex(bigVal))
-    output shouldBe 4
-  }
-
-  it should "iterate exact amount of times" in {
+  "OccurrenceCounter" should "iterate exact amount of times" in {
     val maxValueExclusive = 5
     val range = 1 to maxValueExclusive iterator
     val counter = new OccurrenceCounter(new Formula {
@@ -47,6 +24,31 @@ class OccurrenceCounterSpec extends FlatSpec with Matchers {
     val output = counter.getMax(new Complex(bigVal))
     output shouldBe maxValueExclusive
     range.hasNext shouldBe false
+  }
+
+  it should "return max value if formula return value is constant" in {
+    val constantVal = new Complex(152)
+    val maxIterCount = 5
+    val counter = new OccurrenceCounter(new Formula {
+      override def countNext(z: Complex): Complex = constantVal
+    }, maxIterCount)
+    val output = counter.getMax(new Complex(100))
+    output shouldBe maxIterCount
+  }
+
+  it should "remove gaps from increasing values if there is any decreasing" in {
+    val max = 5
+    val range = 1 until max iterator
+    val counter = new OccurrenceCounter(new Formula {
+
+      override def countNext(z: Complex): Complex = {
+        val item = if (range.hasNext) range.next() else 0
+        new Complex(item)
+      }
+    }, range.length + 2)
+    val bigVal = 0
+    val output = counter.getMax(new Complex(bigVal))
+    output shouldBe (max + 1)
   }
 
 }
