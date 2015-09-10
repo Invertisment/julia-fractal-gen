@@ -8,18 +8,23 @@ import org.scalatest._
  * @version 1.0 2015-09-05
  */
 class RealFormulaSpec extends FlatSpec with Matchers {
-  "Formula" should "return c value if n is zero" in {
-    val initValue = new Complex(152)
-    val formula = new RealFormula(initValue)
-    val output = formula.countNext(new Complex(0))
-    output shouldBe initValue
+
+  val precision = 1E-15
+
+  it should "return z^2 if c=0" in {
+    val initValue = new Complex(1, 1) // (1 + i) ^ 2 = 2 * i
+    val formula = new RealFormula(new Complex(0))
+    val output = formula.countNext(initValue)
+    output.getReal.abs should be < precision
+    output.getImaginary.abs shouldEqual 2.0
   }
 
-  it should "count right value" in {
-    val initValue = new Complex(1)
-    val formula = new RealFormula(initValue)
-    val output = formula.countNext(new Complex(2))
-    output shouldBe 5
+  it should "return z^2 + c" in {
+    val initValue = new Complex(1, 1) // (1 + i) ^ 2 = 2 * i
+    val formula = new RealFormula(new Complex(17, -1))
+    val output = formula.countNext(initValue)
+    (output.getReal - 17).abs should be < precision
+    output.getImaginary.abs shouldEqual 1.0
   }
 
 }
