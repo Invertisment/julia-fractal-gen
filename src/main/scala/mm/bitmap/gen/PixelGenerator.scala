@@ -7,5 +7,5 @@ import org.apache.commons.math3.complex.Complex
  * @version 1.0 2015-09-05
  */
 trait PixelGenerator {
-  def generate(imageWidth: Int, imageHeight: Int, pxToCoord: Iterator[Complex]): Array[Int]
+  def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int]
 }

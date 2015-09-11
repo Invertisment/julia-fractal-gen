@@ -19,7 +19,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
     })
     for (x <- 1 to 3) {
       val y = 2 + x
-      val img = gen.generate(x, y, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+      val img = gen.generate(x * y, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
       img.length shouldBe x * y
     }
   }
@@ -29,7 +29,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
     val gen = new RealPixelGenerator(new Counter {
       override def getMax(int: Complex): Int = pixel
     })
-    val img = gen.generate(1, 1, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+    val img = gen.generate(1, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
     img.length shouldBe 1
     img(0) shouldBe pixel
   }
@@ -47,7 +47,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
         -1
       }
     })
-    val arr = gen.generate(1, 1, NumericRange[Complex](pixel, new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+    val arr = gen.generate(1, NumericRange[Complex](pixel, new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
     called shouldBe true
     arr.length shouldBe 1
     arr(0) shouldBe -1
@@ -66,7 +66,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
         -1
       }
     })
-    gen.generate(1, twice, range)
+    gen.generate(twice, range)
     called shouldBe twice
     range.hasNext shouldBe false
   }
