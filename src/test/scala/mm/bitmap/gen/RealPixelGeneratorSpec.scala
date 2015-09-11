@@ -54,7 +54,6 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
   }
 
   it should "call method with right argument twice" in {
-    val pixel = 4884921 // Random test value
     var called = 0
     val twice = 2
     val range = NumericRange[Complex](new Complex(0), new Complex(2, 0), new Complex(1, 0)).iterator
