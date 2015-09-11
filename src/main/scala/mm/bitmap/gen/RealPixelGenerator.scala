@@ -13,11 +13,8 @@ import scala.math.Numeric.DoubleAsIfIntegral
  * @version 1.0 2015-09-05
  */
 class RealPixelGenerator(counter: Counter) extends PixelGenerator {
-  override def generate(imageWidth: Int, imageHeight: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
-    val pixelCount = imageWidth * imageHeight
-    val pixels = Array.ofDim[Int](pixelCount)
-    for (xPos <- pixels.indices)
-      pixels(xPos) = counter.getMax(pxToCoord.next())
-    pixels
-  }
+  override def generate(imageWidth: Int, imageHeight: Int, pxToCoord: Iterator[Complex]): Array[Int] =
+    Array.ofDim[Int](imageWidth * imageHeight)
+      .map((i: Int) => counter.getMax(pxToCoord.next()))
+
 }
