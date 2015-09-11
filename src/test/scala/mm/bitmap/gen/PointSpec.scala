@@ -1,5 +1,6 @@
 package mm.bitmap.gen
 
+import org.apache.commons.math3.complex.Complex
 import org.scalatest.{Matchers, FlatSpec}
 
 /**
@@ -49,4 +50,10 @@ class PointSpec extends FlatSpec with Matchers {
     pointA.accumulate(1, 2) shouldEqual Point(10, 3)
   }
 
+  "Point.toComplexPlane" should "produce a complex number" in {
+    val point = Point(139, 138)
+    val complex: Complex = point.toComplexPlane
+    complex.getReal shouldEqual point.x
+    complex.getImaginary shouldEqual point.y
+  }
 }

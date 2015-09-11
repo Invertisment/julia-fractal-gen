@@ -1,5 +1,7 @@
 package mm.bitmap.gen
 
+import org.apache.commons.math3.complex.Complex
+
 /**
  * @author Martynas Maciulevičius.
  * @version 1.0 2015-09-09
@@ -17,4 +19,5 @@ case class Point(x: Double, y: Double) {
 
   def accumulate(accX: Double, accY: Double): Point = Point(x + accX, y + accY)
 
+  def toComplexPlane: Complex = new Complex(x, y)
 }
