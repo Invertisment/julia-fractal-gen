@@ -8,4 +8,6 @@ import org.apache.commons.math3.complex.Complex
  */
 trait PixelGenerator {
   def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int]
+
+  def generate(width: Int, height: Int, coordBounds: (Point, Point)): Array[Int]
 }

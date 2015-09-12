@@ -70,4 +70,52 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers {
     range.hasNext shouldBe false
   }
 
+  "generate with points" should "call other generate method" in {
+    val generator = new RealPixelGenerator(new Counter {
+      override def getMax(int: Complex): Int = -2
+    }) {
+      override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
+        count shouldBe 2
+        Array(-1, -1)
+      }
+    }
+    val arrayOut = generator.generate(1, 2, (Point(0, 0), Point(1, 1)))
+    arrayOut.length shouldBe 2
+    arrayOut.foreach((i: Int) => i shouldBe -1)
+  }
+
+  it should "split x axis into separate calls with correct iterators" in {
+    val yValue = 2
+    2 to 3 foreach ((length: Int) => {
+      val numbers = (1 to yValue * length) iterator
+      var iterSkip = 0
+      val generator = new RealPixelGenerator(new Counter {
+        override def getMax(int: Complex): Int = fail()
+      }) {
+        val min = new Complex(0, 0)
+        val max = new Complex(length, 0)
+        val step = max.divide(length)
+        val firstValues = NumericRange(min, max, step).iterator
+
+        override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
+          count shouldBe yValue
+          val firstValue = firstValues.next()
+          val secondValue = new Complex(firstValue.getReal, length / yValue.toDouble)
+          val testValues = Seq(firstValue, secondValue).iterator
+          testValues.foreach((complex: Complex) =>
+            complex shouldEqual pxToCoord.next)
+          pxToCoord.hasNext shouldBe false
+          val ret = numbers.slice(iterSkip, iterSkip + count).toArray
+          iterSkip += count
+          ret
+        }
+      }
+      val out = generator.generate(length, yValue, (Point(0, 0), Point(length, length)))
+      iterSkip shouldEqual length * yValue
+      out.length shouldBe length * yValue
+      val numbers2 = (1 to yValue * length).iterator
+      out.foreach((i: Int) => i shouldEqual numbers2.next)
+    })
+  }
+
 }
