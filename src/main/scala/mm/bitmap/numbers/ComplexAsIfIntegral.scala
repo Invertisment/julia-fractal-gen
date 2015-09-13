@@ -29,7 +29,7 @@ class ComplexAsIfIntegral extends Integral[Complex] {
 
   override def minus(x: Complex, y: Complex): Complex = x.subtract(y)
 
-  override def compare(x: Complex, y: Complex): Int = x.abs().compareTo(y.abs())
+  override def compare(x: Complex, y: Complex): Int = x.getReal.compareTo(y.getReal)
 }
 
 object ComplexAsIfIntegral {
