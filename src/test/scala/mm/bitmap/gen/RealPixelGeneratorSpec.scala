@@ -30,7 +30,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
     })
     for (x <- 1 to 3) {
       val y = 2 + x
-      val img = gen.generate(x * y, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+      val img = gen.generate(NumericRange[Complex](new Complex(0, 0), new Complex(x * y, x * y), new Complex(1, 1)).iterator)
       img.length shouldBe x * y
     }
   }
@@ -40,7 +40,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
     val gen = new RealPixelGenerator(new Counter {
       override def getMax(int: Complex): Int = pixel
     })
-    val img = gen.generate(1, NumericRange[Complex](new Complex(0, 0), new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+    val img = gen.generate(NumericRange[Complex](new Complex(0, 0), new Complex(1, 1), new Complex(1, 1)).iterator)
     img.length shouldBe 1
     img(0) shouldBe pixel
   }
@@ -58,7 +58,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
         -1
       }
     })
-    val arr = gen.generate(1, NumericRange[Complex](pixel, new Complex(Int.MaxValue, Int.MaxValue), new Complex(1, 1)).iterator)
+    val arr = gen.generate(NumericRange[Complex](pixel, new Complex(1, 1), new Complex(1, 1)).iterator)
     called shouldBe true
     arr.length shouldBe 1
     arr(0) shouldBe -1
@@ -76,7 +76,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
         -1
       }
     })
-    gen.generate(twice, range)
+    gen.generate(range)
     called shouldBe twice
     range.hasNext shouldBe false
   }
@@ -85,8 +85,8 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
     val generator = new RealPixelGenerator(new Counter {
       override def getMax(int: Complex): Int = -2
     }) {
-      override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
-        count shouldBe 2
+      override def generate(pxToCoord: Iterator[Complex]): Array[Int] = {
+        pxToCoord.length shouldBe 2
         Array(-1, -1)
       }
     }
@@ -98,7 +98,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
   it should "split x axis into separate calls with correct iterators" in {
     val yValue = 2
     2 to 3 foreach ((length: Int) => {
-      val numbers = (1 to yValue * length) iterator
+      val numbers = (1 to yValue * length).iterator
       var iterSkip = 0
       val generator = new RealPixelGenerator(new Counter {
         override def getMax(int: Complex): Int = fail()
@@ -108,16 +108,15 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
         val step = max.divide(length)
         val firstValues = NumericRange(min, max, step).iterator
 
-        override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
-          count shouldBe yValue
+        override def generate(pxToCoord: Iterator[Complex]): Array[Int] = {
           val firstValue = firstValues.next()
           val secondValue = new Complex(firstValue.getReal, length / yValue.toDouble)
           val testValues = Seq(firstValue, secondValue).iterator
           testValues.foreach((complex: Complex) =>
             complex shouldEqual pxToCoord.next)
           pxToCoord.hasNext shouldBe false
-          val ret = numbers.slice(iterSkip, iterSkip + count).toArray
-          iterSkip += count
+          val ret = numbers.slice(iterSkip, iterSkip + yValue).toArray
+          iterSkip += yValue
           ret
         }
       }
@@ -141,8 +140,7 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
       val generator = new RealPixelGenerator(new Counter {
         override def getMax(int: Complex): Int = fail()
       }) {
-        override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
-          count shouldBe yValue
+        override def generate(pxToCoord: Iterator[Complex]): Array[Int] = {
           val next = firstValues.next()
           val next2 = pxToCoord.next()
           next shouldBe next2
@@ -163,12 +161,12 @@ class RealPixelGeneratorSpec extends FlatSpec with Matchers with BeforeAndAfterA
     }) {
       var isCalled = false
 
-      override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] = {
+      override def generate(pxToCoord: Iterator[Complex]): Array[Int] = {
         isCalled shouldBe false
         isCalled = true
-        count shouldBe yValue
         val next2 = pxToCoord.next()
         next2 shouldBe new Complex(nullValue, nullValue)
+        pxToCoord.hasNext shouldBe false
         Array()
       }
     }

@@ -17,7 +17,7 @@ import scala.util.Try
  * @version 1.0 2015-09-05
  */
 class RealPixelGenerator(counter: Counter)(implicit val executionContext: ExecutionContext) extends PixelGenerator {
-  override def generate(count: Int, pxToCoord: Iterator[Complex]): Array[Int] =
+  override def generate(pxToCoord: Iterator[Complex]): Array[Int] =
     pxToCoord.map((complex: Complex) => counter.getMax(complex)).toArray
 
   override def generate(width: Int, height: Int, coordBounds: (Point, Point)): Array[Int] = {
@@ -35,7 +35,7 @@ class RealPixelGenerator(counter: Counter)(implicit val executionContext: Execut
       val step = max.subtract(min).divide(height)
       val range = NumericRange(min, max, step).toIterator
       Future {
-        val arr = generate(height, range)
+        val arr = generate(range)
         for (x <- arr.indices)
           masterArray(x * width + horizontalPosition) = arr(x)
         println("line " + horizontalPosition)
