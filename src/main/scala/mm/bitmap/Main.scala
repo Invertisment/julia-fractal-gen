@@ -115,6 +115,9 @@ object Main {
       opt[Int]("f-power") action { case (im, c) =>
         c.copy(formulaPower = im)
       } valueName "<number>" text s"Formula's z[1]^<number> + c. Default: ${config.imaginaryCoordinateTo}"
+      opt[Int]('t', "threads") action { case (im, c) =>
+        c.copy(threadPoolSize = im)
+      } valueName "<number>" text s"Thread pool size for computations. Default: ${config.threadPoolSize} (Determined by your current processor)."
 
       arg[File]("filename") optional() action { (x, c) =>
         c.copy(outputFile = x)
