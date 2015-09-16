@@ -70,6 +70,7 @@ object Main {
                              outputFile: File = new File("image.bmp"),
                              formulaPower: Int = 2,
                              verbose: Boolean = false
+                             verbose: Boolean = false // not used
                              )
 
   private def parseArgs(args: Array[String]): Unit = {
