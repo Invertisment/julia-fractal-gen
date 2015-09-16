@@ -9,6 +9,7 @@ import mm.bitmap.counters.OccurrenceCounter
 import mm.bitmap.formulas.RealFormula
 import mm.bitmap.gen.{Point, RealPixelGenerator}
 import org.apache.commons.math3.complex.Complex
+import scopt.Read
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,7 +48,7 @@ object Main {
           new OccurrenceCounter(
             new RealFormula(
               cValue, config.formulaPower)))(ExecutionContext.fromExecutor(executor)).generate(
-            config.imageWidth, config.imageHeight, points).map((i: Int) => i * 0xaff587))
+            config.imageWidth, config.imageHeight, points).map((i: Int) => i * config.color))
       image.setData(raster)
       println("done counting")
     } finally {
@@ -69,7 +70,8 @@ object Main {
                              threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
                              outputFile: File = new File("image.bmp"),
                              formulaPower: Double = 2,
-                             verbose: Boolean = false // not used
+                             verbose: Boolean = false, // not used
+                             color: Int = 0xaff587
                              )
 
   private def parseArgs(args: Array[String]): Unit = {
@@ -88,7 +90,7 @@ object Main {
         c.copy(cImaginary = im)
       } valueName "<number>" text s"Imaginary part of complex number. Default: ${config.cImaginary}"
 
-      opt[Int]('p', "pow") action { case (im, c) =>
+      opt[Double]('p', "pow") action { case (im, c) =>
         c.copy(formulaPower = im)
       } valueName "<number>" text s"Formula's z[1]^<number> + c. Default: ${config.formulaPower}"
 
@@ -100,21 +102,25 @@ object Main {
         c.copy(imageHeight = im)
       } valueName "<number>" text s"Height of the generated image. Default: ${config.imageHeight}"
 
-      opt[Int]("re-from") action { case (im, c) =>
+      opt[Double]("re-from") action { case (im, c) =>
         c.copy(realCoordinateFrom = im)
       } valueName "<number>" text s"Real plotting axis starting point. Default: ${config.realCoordinateFrom}"
 
-      opt[Int]("re-to") action { case (im, c) =>
+      opt[Double]("re-to") action { case (im, c) =>
         c.copy(realCoordinateTo = im)
       } valueName "<number>" text s"Real plotting axis ending point. Default: ${config.realCoordinateTo}"
 
-      opt[Int]("im-from") action { case (im, c) =>
+      opt[Double]("im-from") action { case (im, c) =>
         c.copy(imaginaryCoordinateFrom = im)
       } valueName "<number>" text s"Imaginary plotting axis starting point. Default: ${config.imaginaryCoordinateFrom}"
 
-      opt[Int]("im-to") action { case (im, c) =>
+      opt[Double]("im-to") action { case (im, c) =>
         c.copy(imaginaryCoordinateTo = im)
       } valueName "<number>" text s"Imaginary plotting axis ending point. Default: ${config.imaginaryCoordinateTo}"
+
+      opt[Int]("color") optional() action { (x, c) =>
+        c.copy(color = x)
+      } text s"Adds some colors to the computed image. Works by multiplying gray color value with given number (Int). Gray image can be produced using value of ${0x10101}. Default: ${config.color}"
 
       opt[Int]('t', "threads") action { case (im, c) =>
         c.copy(threadPoolSize = im)
