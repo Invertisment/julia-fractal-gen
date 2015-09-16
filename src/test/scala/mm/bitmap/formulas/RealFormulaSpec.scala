@@ -27,4 +27,15 @@ class RealFormulaSpec extends FlatSpec with Matchers {
     output.getImaginary.abs shouldEqual 1.0
   }
 
+  it should "use given power" in {
+    (2 to 4).foreach((power: Int) => {
+      val input = new Complex(-0.3, -18.2)
+      val initValue = new Complex(2, 4)
+      val power = -1
+      val formula = new RealFormula(initValue, power)
+      val output = formula.countNext(input)
+      output shouldEqual (input pow power add initValue)
+    })
+
+  }
 }

@@ -46,7 +46,7 @@ object Main {
         new RealPixelGenerator(
           new OccurrenceCounter(
             new RealFormula(
-              cValue)))(ExecutionContext.fromExecutor(executor)).generate(
+              cValue, config.formulaPower)))(ExecutionContext.fromExecutor(executor)).generate(
             config.imageWidth, config.imageHeight, points).map((i: Int) => i * 0xaff587))
       image.setData(raster)
       println("done counting")
@@ -68,8 +68,7 @@ object Main {
                              imaginaryCoordinateTo: Double = 0.001,
                              threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
                              outputFile: File = new File("image.bmp"),
-                             formulaPower: Int = 2,
-                             verbose: Boolean = false
+                             formulaPower: Double = 2,
                              verbose: Boolean = false // not used
                              )
 
@@ -88,6 +87,10 @@ object Main {
       opt[Double]("c-im") action { case (im, c) =>
         c.copy(cImaginary = im)
       } valueName "<number>" text s"Imaginary part of complex number. Default: ${config.cImaginary}"
+
+      opt[Int]('p', "pow") action { case (im, c) =>
+        c.copy(formulaPower = im)
+      } valueName "<number>" text s"Formula's z[1]^<number> + c. Default: ${config.formulaPower}"
 
       opt[Int]('w', "width") action { case (im, c) =>
         c.copy(imageWidth = im)
@@ -113,9 +116,6 @@ object Main {
         c.copy(imaginaryCoordinateTo = im)
       } valueName "<number>" text s"Imaginary plotting axis ending point. Default: ${config.imaginaryCoordinateTo}"
 
-      opt[Int]("f-power") action { case (im, c) =>
-        c.copy(formulaPower = im)
-      } valueName "<number>" text s"Formula's z[1]^<number> + c. Default: ${config.imaginaryCoordinateTo}"
       opt[Int]('t', "threads") action { case (im, c) =>
         c.copy(threadPoolSize = im)
       } valueName "<number>" text s"Thread pool size for computations. Default: ${config.threadPoolSize} (Determined by your current processor)."
