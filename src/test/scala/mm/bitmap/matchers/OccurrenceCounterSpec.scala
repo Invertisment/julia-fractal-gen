@@ -51,4 +51,42 @@ class OccurrenceCounterSpec extends FlatSpec with Matchers {
     output shouldBe (max + 1)
   }
 
+  "getMax" should "stop the calculation at given positive infinity" in {
+    val myInfinity = 25
+    val overflowAfter = 35
+    val input = new Complex(0)
+    // Single step iterator (We don't want to call it twice)
+    val seq = Iterator(new Complex(myInfinity))
+    val counter = new OccurrenceCounter(new Formula {
+
+      override def countNext(z: Complex): Complex = {
+        z shouldBe input
+        seq.next()
+      }
+
+    }, overflowAfter, myInfinity)
+    val out = counter.getMax(input) // Random input (should not be used)
+    seq.hasNext shouldBe false
+    out shouldEqual overflowAfter
+  }
+
+  "getMax" should "stop the calculation at given negative infinity" in {
+    val myInfinity = 25
+    val overflowAfter = 35
+    val input = new Complex(0)
+    // Single step iterator (We don't want to call it twice)
+    val seq = Iterator(new Complex(myInfinity + 1))
+    val counter = new OccurrenceCounter(new Formula {
+
+      override def countNext(z: Complex): Complex = {
+        z shouldBe input
+        seq.next()
+      }
+
+    }, overflowAfter, myInfinity)
+    val out = counter.getMax(input) // Random input (should not be used)
+    seq.hasNext shouldBe false
+    out shouldEqual overflowAfter
+  }
+
 }
