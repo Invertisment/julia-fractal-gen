@@ -1,6 +1,6 @@
 package mm.bitmap
 
-import java.awt.image.{Raster, DataBuffer, BufferedImage}
+import java.awt.image.{BufferedImage, DataBuffer, Raster}
 import java.io.File
 import java.util.concurrent.Executors
 import javax.imageio.ImageIO
@@ -9,7 +9,6 @@ import mm.bitmap.counters.OccurrenceCounter
 import mm.bitmap.formulas.RealFormula
 import mm.bitmap.gen.{Point, RealPixelGenerator}
 import org.apache.commons.math3.complex.Complex
-import scopt.Read
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
