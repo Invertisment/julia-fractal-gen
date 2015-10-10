@@ -19,10 +19,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 object Main {
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]) =
     parseArgs(args)
-    //    wtf("image.bmp", generateImage())
-  }
 
   /** Write to file */
   private def wtf(config: Config, image: BufferedImage): Unit = {
@@ -47,7 +45,7 @@ object Main {
           new OccurrenceCounter(
             new RealFormula(
               cValue, config.formulaPower)))(ExecutionContext.fromExecutor(executor)).generate(
-            config.imageWidth, config.imageHeight, points).map((i: Int) => i * config.color))
+          config.imageWidth, config.imageHeight, points).map((i: Int) => i * config.color))
       image.setData(raster)
       println("done counting")
     } finally {
@@ -57,21 +55,23 @@ object Main {
     image
   }
 
-  private case class Config(
-                             cReal: Double = 0,
-                             cImaginary: Double = 1,
-                             imageWidth: Int = 1280,
-                             imageHeight: Int = 960,
-                             realCoordinateFrom: Double = -0.001,
-                             realCoordinateTo: Double = 0.001,
-                             imaginaryCoordinateFrom: Double = -0.001,
-                             imaginaryCoordinateTo: Double = 0.001,
-                             threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
-                             outputFile: File = new File("image.bmp"),
-                             formulaPower: Double = 2,
-                             verbose: Boolean = false, // not used
-                             color: Int = 0xaff587
-                             )
+  private[bitmap] case class Config(
+                                     cReal: Double = 0,
+                                     cImaginary: Double = 1,
+                                     imageWidth: Int = 1280,
+                                     imageHeight: Int = 960,
+                                     realCoordinateFrom: Double = -0.001,
+                                     realCoordinateTo: Double = 0.001,
+                                     imaginaryCoordinateFrom: Double = -0.001,
+                                     imaginaryCoordinateTo: Double = 0.001,
+                                     threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
+                                     outputFile: File = new File("image.bmp"),
+                                     formulaPower: Double = 2,
+                                     // verbose: Boolean = false, // not used
+                                     color: Int = 0xaff587,
+                                     // runOverMpj: Boolean = false,
+                                     dryRun: Boolean = false
+                                     )
 
   private def parseArgs(args: Array[String]): Unit = {
     val config: Config = Config()
@@ -125,6 +125,14 @@ object Main {
         c.copy(threadPoolSize = im)
       } valueName "<number>" text s"Thread pool size for computations. Default: ${config.threadPoolSize} (Determined by your current processor)."
 
+      //      opt[Unit]('m', "mpj") action { case (unit, c) =>
+      //        c.copy(runOverMpj = true)
+      //      } valueName "<number>" text s"Run with MPJ-Express library enabled. Default: ${config.runOverMpj}."
+
+      opt[Unit]("dry-run") action { case (unit, c) =>
+        c.copy(dryRun = true)
+      } valueName "<number>" text s"Only display options that were set. Default: ${config.dryRun}."
+
       arg[File]("filename") optional() action { (x, c) =>
         c.copy(outputFile = x)
       } text s"Filename for saving generated image. Default: ${config.outputFile}"
@@ -132,9 +140,17 @@ object Main {
     }
 
     parser.parse(args, config) match {
-      case Some(a) =>
-        wtf(a, generateImage(a))
+      case Some(cfg) =>
+        if (cfg.dryRun) {
+          println("args: " + args)
+          println("Config: " + cfg)
+        }
+        //        else if (cfg.runOverMpj)
+        //          new MpjMain().mpjMain(cfg)
+        else
+          wtf(cfg, generateImage(cfg))
       case None =>
     }
   }
+
 }
