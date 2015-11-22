@@ -13,13 +13,3 @@ libraryDependencies ++= Seq(
 )
 
 resolvers += Resolver.sonatypeRepo("public")
-
-// no custom Java_HOME without forking
-fork in run := true
-
-// different JDK. Sorry for hardcoding the path, really.
-javaHome in run := Some(file("/usr/lib/jvm/java-6-openjdk-amd64/"))
-
-baseAssemblySettings
-
-assemblyJarName in assembly := "Fractals.jar"
