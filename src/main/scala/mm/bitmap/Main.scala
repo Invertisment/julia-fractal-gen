@@ -6,12 +6,11 @@ import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 
 import mm.bitmap.counters.OccurrenceCounter
-import mm.bitmap.formulas.RealFormula
-import mm.bitmap.gen.{Point, RealPixelGenerator}
+import mm.bitmap.formulas.{Formula, RealFormula}
+import mm.bitmap.gen.{PixelGenerator, Point, RealPixelGenerator}
 import org.apache.commons.math3.complex.Complex
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * @author Martynas Maciulevičius.
@@ -20,7 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Main {
 
   def main(args: Array[String]) =
-    parseArgs(args)
+    run(parseArgs(args))
 
   /** Write to file */
   private def wtf(config: Config, image: BufferedImage): Unit = {
@@ -29,54 +28,41 @@ object Main {
     println(if (bool) "successfully written an image" else "failed to write to file")
   }
 
-  private def generateImage(config: Config): BufferedImage = {
+  private def generateImage(config: Config, pixelGeneratorSupplier: PixelGeneratorSupplier): Option[BufferedImage] = {
 
     val points = (Point(config.realCoordinateFrom, config.imaginaryCoordinateFrom),
       Point(config.realCoordinateTo, config.imaginaryCoordinateTo))
-    val cValue = new Complex(config.cReal, config.cImaginary)
 
     val image = new BufferedImage(
       config.imageWidth, config.imageHeight, BufferedImage.TYPE_INT_RGB)
-    val executor = Executors.newFixedThreadPool(config.threadPoolSize)
+    val raster = Raster.createPackedRaster(DataBuffer.TYPE_INT, config.imageWidth, config.imageHeight, 3, 8, null)
+    val pool = Executors.newFixedThreadPool(config.threadPoolSize)
+    val executorService = ExecutionContext.fromExecutor(pool)
     try {
-      val raster = Raster.createPackedRaster(DataBuffer.TYPE_INT, config.imageWidth, config.imageHeight, 3, 8, null)
-      raster.setDataElements(0, 0, config.imageWidth, config.imageHeight,
-        new RealPixelGenerator(
-          new OccurrenceCounter(
-            new RealFormula(
-              cValue, config.formulaPower)))(ExecutionContext.fromExecutor(executor)).generate(
-          config.imageWidth, config.imageHeight, points).map((i: Int) => i * config.color))
-      image.setData(raster)
-      println("done counting")
+      val out = pixelGeneratorSupplier.createGenerator(config)(executorService).generate(
+        config.imageWidth, config.imageHeight, points)
+      if (out.isEmpty)
+        return None
+      out.foreach((ints: Array[Int]) => {
+        raster.setDataElements(
+          0, 0,
+          config.imageWidth, config.imageHeight,
+          ints.map(_ * config.color))
+      })
     } finally {
       // shut down the thread pool
-      executor.shutdown()
+      //      pool.awaitTermination(30, TimeUnit.SECONDS)
+      pool.shutdown()
     }
-    image
+    image.setData(raster)
+    println("done counting")
+    Some(image)
   }
 
-  private[bitmap] case class Config(
-                                     cReal: Double = 0,
-                                     cImaginary: Double = 1,
-                                     imageWidth: Int = 1280,
-                                     imageHeight: Int = 960,
-                                     realCoordinateFrom: Double = -0.001,
-                                     realCoordinateTo: Double = 0.001,
-                                     imaginaryCoordinateFrom: Double = -0.001,
-                                     imaginaryCoordinateTo: Double = 0.001,
-                                     threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
-                                     outputFile: File = new File("image.bmp"),
-                                     formulaPower: Double = 2,
-                                     // verbose: Boolean = false, // not used
-                                     color: Int = 0xaff587,
-                                     // runOverMpj: Boolean = false,
-                                     dryRun: Boolean = false
-                                     )
-
-  private def parseArgs(args: Array[String]): Unit = {
+  private[bitmap] def parseArgs(args: Array[String]): Option[Config] = {
     val config: Config = Config()
 
-    val parser = new scopt.OptionParser[Config]("jar") {
+    new scopt.OptionParser[Config]("jar") {
       head("Fractal generator", "0.1", "\nWritten by Martynas Maciulevičius, September of 2015\n")
 
       help("help") text "Show this text and exit"
@@ -125,9 +111,9 @@ object Main {
         c.copy(threadPoolSize = im)
       } valueName "<number>" text s"Thread pool size for computations. Default: ${config.threadPoolSize} (Determined by your current processor)."
 
-      //      opt[Unit]('m', "mpj") action { case (unit, c) =>
-      //        c.copy(runOverMpj = true)
-      //      } valueName "<number>" text s"Run with MPJ-Express library enabled. Default: ${config.runOverMpj}."
+      opt[Unit]('m', "mpj") action { case (unit, c) =>
+        c.copy(runOverMpj = true)
+      } valueName "<number>" text s"Run over mpjExpress?. Default: ${config.runOverMpj}."
 
       opt[Unit]("dry-run") action { case (unit, c) =>
         c.copy(dryRun = true)
@@ -138,19 +124,34 @@ object Main {
       } text s"Filename for saving generated image. Default: ${config.outputFile}"
 
     }
+      .parse(args, config)
+  }
 
-    parser.parse(args, config) match {
+  private[bitmap] def run(config: Option[Config], generatorSupplier: PixelGeneratorSupplier = new DefaultPixelGeneratorSupplier): Unit =
+    config match {
       case Some(cfg) =>
-        if (cfg.dryRun) {
-          println("args: " + args)
+        if (cfg.dryRun)
           println("Config: " + cfg)
-        }
-        //        else if (cfg.runOverMpj)
-        //          new MpjMain().mpjMain(cfg)
         else
-          wtf(cfg, generateImage(cfg))
+          generateImage(cfg, generatorSupplier).foreach(image =>
+            wtf(cfg, image))
       case None =>
     }
+
+  private[bitmap] class DefaultPixelGeneratorSupplier extends PixelGeneratorSupplier {
+    override def createGenerator(config: Config)(implicit executionContext: ExecutionContext): PixelGenerator = {
+      new RealPixelGenerator(getOccurenceCounter(config))
+    }
+  }
+
+  private[bitmap] def getOccurenceCounter(config: Config)(implicit executionContext: ExecutionContext): OccurrenceCounter =
+    new OccurrenceCounter(
+      getDefaultFormula(config))
+
+  private[bitmap] def getDefaultFormula(config: Config): Formula = {
+    val cValue = new Complex(config.cReal, config.cImaginary)
+    new RealFormula(
+      cValue, config.formulaPower)
   }
 
 }

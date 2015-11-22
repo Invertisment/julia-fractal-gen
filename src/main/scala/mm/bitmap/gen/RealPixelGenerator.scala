@@ -1,15 +1,12 @@
 package mm.bitmap.gen
 
-import java.util.concurrent.CountDownLatch
-
 import mm.bitmap.counters.Counter
 import mm.bitmap.numbers.ComplexAsIfIntegral.complexIntegral
 import org.apache.commons.math3.complex.Complex
 
 import scala.collection.immutable.NumericRange
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.math.Numeric.DoubleAsIfIntegral
-import scala.util.Try
 
 /**
  * sifjdfg
@@ -20,36 +17,32 @@ class RealPixelGenerator(counter: Counter)(implicit val executionContext: Execut
   override def generate(pxToCoord: Iterator[Complex]): Array[Int] =
     pxToCoord.map((complex: Complex) => counter.getMax(complex)).toArray
 
-  override def generate(width: Int, height: Int, coordBounds: (Point, Point)): Array[Int] = {
-    val minFirst = getMin(coordBounds)
-    val maxFirst = getMax(coordBounds)
-    val stepFirst = (maxFirst.getReal - minFirst.getReal) / width
-    val firsts = NumericRange(minFirst.getReal, maxFirst.getReal, stepFirst)(DoubleAsIfIntegral).toIterator
-    val masterArray = Array.ofDim[Int](width * height)
-    val latch = new CancellableCountDownLatch(width)
-    0 until width foreach ((horizontalPosition: Int) => {
-      if (latch.isAborted)
-        println("line " + horizontalPosition + " start")
-      val min = new Complex(firsts.next(), minFirst.getImaginary)
-      val max = new Complex(min.getReal, maxFirst.getImaginary)
-      val step = max.subtract(min).divide(height)
-      val range = NumericRange(min, max, step).toIterator
-      Future {
-        val arr = generate(range)
-        for (x <- arr.indices)
-          masterArray(x * width + horizontalPosition) = arr(x)
-        println("line " + horizontalPosition)
-      }(executionContext)
-        .onComplete((triedUnit: Try[Unit]) => {
-        if (triedUnit.isFailure) {
-          val thr = triedUnit.failed.get
-          latch.abort(thr)
-        }
-        latch.countDown()
-      })
+  override def generate(width: Int, height: Int, coordBounds: (Point, Point)): Option[Array[Int]] = {
+    val minPoint = getMin(coordBounds)
+    val maxPoint = getMax(coordBounds)
+    val stepFirst = (minPoint.getImaginary - maxPoint.getImaginary) / height
+    val firsts = NumericRange(maxPoint.getImaginary, minPoint.getImaginary, stepFirst)(DoubleAsIfIntegral).toIterator
+    val stream = (0 until height).map((verticalPosition: Int) => {
+      val min = new Complex(minPoint.getReal, firsts.next())
+      val max = new Complex(maxPoint.getReal, min.getImaginary)
+      val step = max.subtract(min).divide(width)
+      (verticalPosition, NumericRange(min, max, step).take(width))
     })
-    latch.await()
-    masterArray
+
+    val masterArray = Array.ofDim[Int](width * height)
+    generate(stream)
+      .foreach((item: (Int, Array[Int])) => {
+        val verticalIndex = item._1 * width
+        for (zipped <- item._2.zipWithIndex)
+          masterArray(zipped._2 + verticalIndex) = zipped._1
+      })
+    Some(masterArray)
+  }
+
+  override def generate(data: Iterable[(Int, NumericRange[Complex])]): Iterator[(Int, Array[Int])] = {
+    data.map(item => {
+      (item._1, generate(item._2.toIterator))
+    }).iterator
   }
 
   private def getMin(points: (Point, Point)): Complex = points._1.minCoord(points._2).toComplexPlane
