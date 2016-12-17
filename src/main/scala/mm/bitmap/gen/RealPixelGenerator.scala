@@ -9,10 +9,11 @@ import scala.concurrent.ExecutionContext
 import scala.math.Numeric.DoubleAsIfIntegral
 
 /**
- * sifjdfg
- * @author Martynas Maciulevičius.
- * @version 1.0 2015-09-05
- */
+  * sifjdfg
+  *
+  * @author Martynas Maciulevičius.
+  * @version 1.0 2015-09-05
+  */
 class RealPixelGenerator(counter: Counter)(implicit val executionContext: ExecutionContext) extends PixelGenerator {
   override def generate(pxToCoord: Iterator[Complex]): Array[Int] =
     pxToCoord.map((complex: Complex) => counter.getMax(complex)).toArray
@@ -41,6 +42,7 @@ class RealPixelGenerator(counter: Counter)(implicit val executionContext: Execut
 
   override def generate(data: Iterable[(Int, NumericRange[Complex])]): Iterator[(Int, Array[Int])] = {
     data.map(item => {
+      println(item._1)
       (item._1, generate(item._2.toIterator))
     }).iterator
   }

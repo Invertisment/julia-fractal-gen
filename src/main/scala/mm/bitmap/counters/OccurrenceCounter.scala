@@ -6,12 +6,12 @@ import org.apache.commons.math3.complex.Complex
 import scala.annotation.tailrec
 
 /**
- * @author Martynas Maciulevičius.
- * @version 1.0 2015-09-05
- * @param formula Formula to use when counting values
- * @param overflowAfter It stops counting occurrences after this value (This value is max count value - 1)
- * @param infinity The calculation is stopped and overflow value is added to count.
- */
+  * @author Martynas Maciulevičius.
+  * @version 1.0 2015-09-05
+  * @param formula       Formula to use when counting values
+  * @param overflowAfter It stops counting occurrences after this value (This value is max count value - 1)
+  * @param infinity      The calculation is stopped and overflow value is added to count.
+  */
 class OccurrenceCounter(formula: Formula, overflowAfter: Int = 0xff, infinity: Double = Double.PositiveInfinity)
   extends Counter {
 

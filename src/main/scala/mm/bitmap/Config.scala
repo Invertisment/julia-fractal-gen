@@ -3,9 +3,9 @@ package mm.bitmap
 import java.io.File
 
 /**
- * @author Martynas Maciulevičius.
- * @version 1.0 2015-10-15
- */
+  * @author Martynas Maciulevičius.
+  * @version 1.0 2015-10-15
+  */
 
 case class Config(
                    cReal: Double = 0,

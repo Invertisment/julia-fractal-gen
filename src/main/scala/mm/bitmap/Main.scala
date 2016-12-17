@@ -13,9 +13,9 @@ import org.apache.commons.math3.complex.Complex
 import scala.concurrent.ExecutionContext
 
 /**
- * @author Martynas Maciulevičius.
- * @version 1.0 2015-09-05
- */
+  * @author Martynas Maciulevičius.
+  * @version 1.0 2015-09-05
+  */
 object Main {
 
   def main(args: Array[String]) =
@@ -53,6 +53,7 @@ object Main {
       // shut down the thread pool
       //      pool.awaitTermination(30, TimeUnit.SECONDS)
       pool.shutdown()
+      println("pool shut down")
     }
     image.setData(raster)
     println("done counting")
