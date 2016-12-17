@@ -16,7 +16,7 @@ case class Config(
                    realCoordinateTo: Double = 0.001,
                    imaginaryCoordinateFrom: Double = -0.001,
                    imaginaryCoordinateTo: Double = 0.001,
-                   threadPoolSize: Int = Runtime.getRuntime.availableProcessors(),
+                   threadPoolSize: Int = Math.max(Runtime.getRuntime.availableProcessors() - 1, 1),
                    outputFile: File = new File("image.bmp"),
                    formulaPower: Double = 2,
                    // verbose: Boolean = false, // not used
