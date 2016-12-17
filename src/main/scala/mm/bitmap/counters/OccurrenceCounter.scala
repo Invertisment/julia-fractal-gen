@@ -23,9 +23,10 @@ class OccurrenceCounter(formula: Formula, overflowAfter: Int = 0xff, infinity: D
     val value = formula.countNext(seed)
     val newCount = if (seed.abs <= value.abs) count + 1 else count
     val nextIterCount = iterCount + 1
-    if (value.getReal >= infinity || value.getImaginary >= infinity)
-      return overflowAfter - nextIterCount + newCount
-    if (nextIterCount < overflowAfter) getMax(value, newCount, nextIterCount) else newCount
+    //    if (value.getImaginary > 300000 || value.abs() >= infinity)
+    if (value.abs() >= infinity)
+      return overflowAfter - nextIterCount
+    if (nextIterCount <= overflowAfter) getMax(value, newCount, nextIterCount) else newCount
   }
 
 }
