@@ -20,8 +20,8 @@ case class Config(
                    outputFile: File = new File("image.bmp"),
                    formulaPower: Double = 2,
                    // verbose: Boolean = false, // not used
-                   color: Int = 0xaff587,
+                   color: Int = 0xcc11ee,
                    runOverMpj: Boolean = false,
                    dryRun: Boolean = false
-                   )
+                 )
 
